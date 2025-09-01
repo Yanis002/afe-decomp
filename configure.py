@@ -180,27 +180,33 @@ config.scratch_preset_id = None
 # Base flags, common to most GC/Wii games.
 # Generally leave untouched, with overrides added below.
 cflags_base = [
+    # Platform Definitions
     "-nodefaults",
     "-proc gekko",
     "-align powerpc",
     "-enum int",
+    # Multibyte Definitions
+    "-multibyte",
+    "-char unsigned",
+    # Gekko Specific Definitions
     "-fp hardware",
     "-Cpp_exceptions off",
-    # "-W all",
-    "-O4,p",
-    "-inline auto",
     '-pragma "cats off"',
+    # Default compiler flags (turn off if needed)
+    # "-W all",
+    # "-O4,p",
+    # "-inline auto",
     '-pragma "warn_notinlined off"',
+    # Helpful linker flags
     "-maxerrors 1",
     "-nosyspath",
-    "-RTTI off",
-    "-fp_contract on",
-    "-str reuse",
-    "-multibyte",  # For Wii compilers, replace with `-enc SJIS`
+    # dtk-specific includes
     "-i include",
+    "-i include/dolphin",
+    "-i include/libc",
+    # "-i src/static/dolphin",
     f"-i build/{config.version}/include",
-    f"-DBUILD_VERSION={version_num}",
-    f"-DVERSION_{config.version}",
+    f"-DVERSION={version_num}",
 ]
 
 # Debug flags
@@ -210,14 +216,26 @@ if args.debug:
 else:
     cflags_base.append("-DNDEBUG=1")
 
+cflags_common = [
+    # Needed for N64 SDK
+    "-d _LANGUAGE_C",
+    "-d F3DEX_GBI_2",
+    # Project-specific stuff
+    "-d MUST_MATCH",
+]
+
+# DOL flags
+cflags_static = [
+    *cflags_base,
+    *cflags_common,
+    "-O4,s",
+]
+
 # Metrowerks library flags
 cflags_runtime = [
     *cflags_base,
-    "-use_lmw_stmw on",
-    "-str reuse,pool,readonly",
-    "-gccinc",
-    "-common off",
-    "-inline auto",
+    "-O4,p",
+    "-inline all",
 ]
 
 # REL flags
@@ -252,6 +270,17 @@ def Rel(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
     }
 
 
+def JSystemLib(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
+    return {
+        "lib": lib_name,
+        "mw_version": "GC/1.3.2",
+        "cflags": [*cflags_base, "-O4,s", "-char signed"],
+        "progress_category": "jsystem",
+        "src_dir": "src/static",
+        "objects": objects,
+    }
+
+
 Matching = True                   # Object matches and should be linked
 NonMatching = False               # Object does not match and should not be linked
 Equivalent = config.non_matching  # Object should be linked when configured with --non-matching
@@ -265,14 +294,29 @@ def MatchingFor(*versions):
 config.warn_missing_config = True
 config.warn_missing_source = False
 config.libs = [
+    JSystemLib(
+        "JUtility",
+        [
+            Object(NonMatching, "JSystem/JUtility/JUTSDDrive.cpp"),
+            Object(NonMatching, "JSystem/JUtility/JUTSDFile.cpp"),
+        ],
+    ),
     {
         "lib": "Runtime.PPCEABI.H",
         "mw_version": config.linker_version,
-        "cflags": cflags_runtime,
-        "progress_category": "sdk",  # str | List[str]
+        "cflags": [*cflags_runtime, "-inline auto,deferred", "-use_lmw_stmw on", "-char signed", "-fp_contract on"],
+        "progress_category": "sdk",
+        "src_dir": "src/static",
         "objects": [
-            Object(NonMatching, "Runtime.PPCEABI.H/global_destructor_chain.c"),
-            Object(NonMatching, "Runtime.PPCEABI.H/__init_cpp_exceptions.cpp"),
+            Object(Matching, "Runtime.PPCEABI.H/__va_arg.c"),
+            Object(Matching, "Runtime.PPCEABI.H/global_destructor_chain.c"),
+            Object(Matching, "Runtime.PPCEABI.H/CPlusLibPPC.cp"),
+            Object(Matching, "Runtime.PPCEABI.H/NMWException.cp"),
+            Object(Matching, "Runtime.PPCEABI.H/ptmf.c"),
+            Object(Matching, "Runtime.PPCEABI.H/runtime.c"),
+            Object(Matching, "Runtime.PPCEABI.H/__init_cpp_exceptions.cpp"),
+            Object(Matching, "Runtime.PPCEABI.H/Gecko_ExceptionPPC.cp"),
+            Object(Matching, "Runtime.PPCEABI.H/__mem.c"),
         ],
     },
 ]
@@ -300,6 +344,7 @@ def link_order_callback(module_id: int, objects: List[str]) -> List[str]:
 config.progress_categories = [
     ProgressCategory("game", "Game Code"),
     ProgressCategory("sdk", "SDK Code"),
+    ProgressCategory("jsystem", "JSystem"),
 ]
 config.progress_each_module = args.verbose
 

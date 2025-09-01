@@ -982,19 +982,19 @@ JGadget.a/linklist.cpp:
 	.text       start:0x80074904 end:0x8007495C
 	.text       start:0x8007495C end:0x80074A44
 
-JUtility.a/JUTGraphFifo.cpp:
+JUtility/JUTGraphFifo.cpp:
 	.text       start:0x80074A44 end:0x80074BE4
 	.data       start:0x80102C88 end:0x80102CA8
 	.sdata      start:0x80290FF8 end:0x80291000
 	.sbss       start:0x802918B8 end:0x802918C8
 
-JUtility.a/JUTFont.cpp:
+JUtility/JUTFont.cpp:
 	.text       start:0x80074BE4 end:0x80074E00
 	.text       start:0x80074E00 end:0x80074ECC
 	.data       start:0x80102CA8 end:0x80102CF0
 	.sdata      start:0x80291000 end:0x80291010
 
-JUtility.a/JUTResFont.cpp:
+JUtility/JUTResFont.cpp:
 	.text       start:0x80074ECC end:0x800760FC
 	.text       start:0x800760FC end:0x8007613C
 	.text       start:0x8007613C end:0x8007613C
@@ -1003,16 +1003,16 @@ JUtility.a/JUTResFont.cpp:
 	.sdata      start:0x80291010 end:0x80291028
 	.sdata2     start:0x80292468 end:0x80292480
 
-JUtility.a/JUTFontData_Ascfont_fix12.s: comment:0
+JUtility/JUTFontData_Ascfont_fix12.s: comment:0
 	.rodata     start:0x800D20A0 end:0x800D6200
 
-JUtility.a/JUTDbPrint.cpp:
+JUtility/JUTDbPrint.cpp:
 	.text       start:0x8007613C end:0x80076654
 	.text       start:0x80076654 end:0x80076654
 	.sbss       start:0x802918C8 end:0x802918D0
 	.sdata2     start:0x80292480 end:0x80292490
 
-JUtility.a/JUTGamePad.cpp:
+JUtility/JUTGamePad.cpp:
 	.text       start:0x80076654 end:0x80077990
 	.text       start:0x80077990 end:0x80077B8C
 	.ctors      start:0x800D0434 end:0x800D0438
@@ -1022,7 +1022,7 @@ JUtility.a/JUTGamePad.cpp:
 	.sbss       start:0x802918D0 end:0x80291908
 	.sdata2     start:0x80292490 end:0x802924C0
 
-JUtility.a/JUTException.cpp:
+JUtility/JUTException.cpp:
 	.text       start:0x80077B8C end:0x8007A664
 	.text       start:0x8007A664 end:0x8007A760
 	.ctors      start:0x800D0438 end:0x800D043C
@@ -1032,31 +1032,31 @@ JUtility.a/JUTException.cpp:
 	.sbss       start:0x80291908 end:0x80291928
 	.sdata2     start:0x802924C0 end:0x802924D0
 
-JUtility.a/JUTDirectPrint.cpp:
+JUtility/JUTDirectPrint.cpp:
 	.text       start:0x8007A760 end:0x8007AEDC
 	.data       start:0x801033E8 end:0x801036B0
 	.sdata      start:0x802910A8 end:0x802910B0
 	.sbss       start:0x80291928 end:0x80291930
 	.sdata2     start:0x802924D0 end:0x80292528
 
-JUtility.a/JUTAssert.cpp:
+JUtility/JUTAssert.cpp:
 	.text       start:0x8007AEDC end:0x8007B1F0
 	.bss        start:0x80234048 end:0x802340E8
 	.sdata      start:0x802910B0 end:0x802910C0
 	.sbss       start:0x80291930 end:0x80291938
 	.sdata2     start:0x80292528 end:0x80292540
 
-JUtility.a/JUTVideo.cpp:
+JUtility/JUTVideo.cpp:
 	.text       start:0x8007B1F0 end:0x8007B750
 	.data       start:0x801036B0 end:0x801036C8
 	.sdata      start:0x802910C0 end:0x802910C8
 	.sbss       start:0x80291938 end:0x80291950
 
-JUtility.a/JUTXfb.cpp:
+JUtility/JUTXfb.cpp:
 	.text       start:0x8007B750 end:0x8007B9F8
 	.sbss       start:0x80291950 end:0x80291958
 
-JUtility.a/JUTFader.cpp:
+JUtility/JUTFader.cpp:
 	.text       start:0x8007B9F8 end:0x8007BC98
 	.text       start:0x8007BC98 end:0x8007BC98
 	.text       start:0x8007BC98 end:0x8007BC98
@@ -1064,14 +1064,14 @@ JUtility.a/JUTFader.cpp:
 	.sdata      start:0x802910C8 end:0x802910D0
 	.sdata2     start:0x80292540 end:0x80292548
 
-JUtility.a/JUTProcBar.cpp:
+JUtility/JUTProcBar.cpp:
 	.text       start:0x8007BC98 end:0x8007DE34
 	.text       start:0x8007DE34 end:0x8007DE48
 	.sdata      start:0x802910D0 end:0x802910D8
 	.sbss       start:0x80291958 end:0x80291970
 	.sdata2     start:0x80292548 end:0x80292590
 
-JUtility.a/JUTConsole.cpp:
+JUtility/JUTConsole.cpp:
 	.text       start:0x8007DE48 end:0x8007F324
 	.text       start:0x8007F324 end:0x8007F324
 	.data       start:0x801036F0 end:0x80103718
@@ -1079,15 +1079,15 @@ JUtility.a/JUTConsole.cpp:
 	.sbss       start:0x80291970 end:0x80291980
 	.sdata2     start:0x80292590 end:0x802925C0
 
-JUtility.a/JUTDirectFile.cpp:
+JUtility/JUTDirectFile.cpp:
 	.text       start:0x8007F324 end:0x8007F6CC
 
-JUtility.a/JUTGba.cpp:
+JUtility/JUTGba.cpp:
 	.text       start:0x8007F6CC end:0x800802FC
 	.data       start:0x80103718 end:0x80103788
 	.sbss       start:0x80291980 end:0x80291988
 
-JUtility.a/JUTSDDrive.cpp:
+JUtility/JUTSDDrive.cpp:
 	.text       start:0x800802FC end:0x80080F3C
 	.text       start:0x80080F3C end:0x80080F3C
 	.data       start:0x80103788 end:0x801037C8
@@ -1095,115 +1095,115 @@ JUtility.a/JUTSDDrive.cpp:
 	.sdata      start:0x802910E8 end:0x80291108
 	.sbss       start:0x80291988 end:0x80291998
 
-JUtility.a/fs_vara.c:
+JUtility/fs_vara.c:
 	.bss        start:0x80234168 end:0x8027FDF8
 
-JUtility.a/JUTSDFile.cpp:
+JUtility/JUTSDFile.cpp:
 	.text       start:0x80080F3C end:0x80081344
 	.text       start:0x80081344 end:0x80081344
 	.text       start:0x80081344 end:0x8008140C
 	.data       start:0x801037C8 end:0x80103848
 	.sdata      start:0x80291108 end:0x80291130
 
-JUtility.a/JUTTiff.cpp:
+JUtility/JUTTiff.cpp:
 	.text       start:0x8008140C end:0x80087240
 	.data       start:0x80103848 end:0x80103918
 	.sdata      start:0x80291130 end:0x80291160
 	.sdata2     start:0x802925C0 end:0x802925F8
 	.sbss2      start:0x80292AC0 end:0x80292AC2
 
-JUtility.a/fs_form.c:
+JUtility/fs_form.c:
 	.text       start:0x80087240 end:0x80088D30
 	.rodata     start:0x800D6200 end:0x800D62B0
 	.data       start:0x80103918 end:0x80103948
 	.sbss       start:0x80291998 end:0x802919C8
 
-JUtility.a/fs_subd.c:
+JUtility/fs_subd.c:
 	.text       start:0x80088D30 end:0x8008D640
 
-JUtility.a/fs_drv.c:
+JUtility/fs_drv.c:
 	.text       start:0x8008D640 end:0x8008D7D0
 
-JUtility.a/time.c:
+JUtility/time.c:
 	.text       start:0x8008D7D0 end:0x8008D854
 
-JUtility.a/fs_init.c:
+JUtility/fs_init.c:
 	.text       start:0x8008D854 end:0x8008DE20
 	.rodata     start:0x800D62B0 end:0x800D62B8
 
-JUtility.a/fs_mount.c:
+JUtility/fs_mount.c:
 	.text       start:0x8008DE20 end:0x8008F938
 	.data       start:0x80103948 end:0x80103970
 	.sdata      start:0x80291160 end:0x80291168
 
-JUtility.a/fs_umount.c:
+JUtility/fs_umount.c:
 	.text       start:0x8008F938 end:0x8008FE10
 	.sdata      start:0x80291168 end:0x80291170
 
-JUtility.a/fs_sync.c:
+JUtility/fs_sync.c:
 	.text       start:0x8008FE10 end:0x800900FC
 
-JUtility.a/fs_open.c:
+JUtility/fs_open.c:
 	.text       start:0x800900FC end:0x800913E8
 
-JUtility.a/fs_read.c:
+JUtility/fs_read.c:
 	.text       start:0x800913E8 end:0x80091E40
 
-JUtility.a/fs_close.c:
+JUtility/fs_close.c:
 	.text       start:0x80091E40 end:0x80092104
 
-JUtility.a/fs_seek.c:
+JUtility/fs_seek.c:
 	.text       start:0x80092104 end:0x8009243C
 
-JUtility.a/fs_dele.c:
+JUtility/fs_dele.c:
 	.text       start:0x8009243C end:0x800926E0
 
-JUtility.a/fs_opdr.c:
+JUtility/fs_opdr.c:
 	.text       start:0x800926E0 end:0x80092B68
 
-JUtility.a/fs_rddr.c:
+JUtility/fs_rddr.c:
 	.text       start:0x80092B68 end:0x800932F8
 	.sdata      start:0x80291170 end:0x80291178
 
-JUtility.a/fs_cldr.c:
+JUtility/fs_cldr.c:
 	.text       start:0x800932F8 end:0x80093440
 
-JUtility.a/fs_mkdr.c:
+JUtility/fs_mkdr.c:
 	.text       start:0x80093440 end:0x80093A20
 	.data       start:0x80103970 end:0x80103988
 
-JUtility.a/fs_renm.c:
+JUtility/fs_renm.c:
 	.text       start:0x80093A20 end:0x80093F3C
 	.sdata      start:0x80291178 end:0x80291180
 
-JUtility.a/fs_write.c:
+JUtility/fs_write.c:
 	.text       start:0x80093F3C end:0x80094BE4
 
-JUtility.a/fs_chdr.c:
+JUtility/fs_chdr.c:
 	.text       start:0x80094BE4 end:0x80094E90
 	.sdata      start:0x80291180 end:0x80291188
 
-JUtility.a/fs_getps.c:
+JUtility/fs_getps.c:
 	.text       start:0x80094E90 end:0x80094F58
 
-JUtility.a/fs_cardrst.c:
+JUtility/fs_cardrst.c:
 	.text       start:0x80094F58 end:0x80094F80
 
-JUtility.a/fs_drvsel.c:
+JUtility/fs_drvsel.c:
 	.text       start:0x80094F80 end:0x8009531C
 
-JUtility.a/exidrv.c:
+JUtility/exidrv.c:
 	.text       start:0x8009531C end:0x80098928
 	.bss        start:0x8027FDF8 end:0x8027FE78
 	.sbss       start:0x802919C8 end:0x802919D0
 
-JUtility.a/carddrv.c:
+JUtility/carddrv.c:
 	.text       start:0x80098928 end:0x8009AEB8
 	.rodata     start:0x800D62B8 end:0x800D62F8
 	.bss        start:0x8027FE78 end:0x802800B0
 	.sbss       start:0x802919D0 end:0x80291A20
 
-JUtility.a/EXIBios.c:
+JUtility/EXIBios.c:
 	.text       start:0x8009AEB8 end:0x8009C970
 	.bss        start:0x802800B0 end:0x80280180
 	.sbss       start:0x80291A20 end:0x80291A28
@@ -1567,36 +1567,36 @@ gx.a/GXPerf.c:
 	.text       start:0x800C02E4 end:0x800C0C00
 	.data       start:0x801060D8 end:0x801061C8
 
-Runtime.PPCEABI.H.a/__va_arg.c:
+Runtime.PPCEABI.H/__va_arg.c:
 	.text       start:0x800C0C00 end:0x800C0CC8
 
-Runtime.PPCEABI.H.a/global_destructor_chain.c:
+Runtime.PPCEABI.H/global_destructor_chain.c:
 	.text       start:0x800C0CC8 end:0x800C0D28
 	.dtors      start:0x800D0448 end:0x800D044C
 	.sbss       start:0x80291D70 end:0x80291D78
 
-Runtime.PPCEABI.H.a/CPlusLibPPC.cp:
+Runtime.PPCEABI.H/CPlusLibPPC.cp:
 	.text       start:0x800C0D28 end:0x800C0D58
 
-Runtime.PPCEABI.H.a/NMWException.cp:
+Runtime.PPCEABI.H/NMWException.cp:
 	extab       start:0x800056C0 end:0x800056E8
 	extabindex  start:0x80005700 end:0x80005724
 	.text       start:0x800C0D58 end:0x800C0F80
 
-Runtime.PPCEABI.H.a/ptmf.c:
+Runtime.PPCEABI.H/ptmf.c:
 	.text       start:0x800C0F80 end:0x800C0FD8
 
-Runtime.PPCEABI.H.a/runtime.c:
+Runtime.PPCEABI.H/runtime.c:
 	.text       start:0x800C0FD8 end:0x800C1754
 	.rodata     start:0x800D6308 end:0x800D6320
 
-Runtime.PPCEABI.H.a/__init_cpp_exceptions.cpp:
+Runtime.PPCEABI.H/__init_cpp_exceptions.cpp:
 	.text       start:0x800C1754 end:0x800C17D0
 	.ctors      start:0x800D0400 end:0x800D0404
 	.dtors      start:0x800D0440 end:0x800D0448
 	.sdata      start:0x802912D0 end:0x802912D8
 
-Runtime.PPCEABI.H.a/Gecko_ExceptionPPC.cp:
+Runtime.PPCEABI.H/Gecko_ExceptionPPC.cp:
 	.text       start:0x800C17D0 end:0x800C1838
 	.bss        start:0x80282068 end:0x80282078
 
@@ -1806,7 +1806,7 @@ TRK_MINNOW_DOLPHIN.a/notify.c:
 TRK_MINNOW_DOLPHIN.a/flush_cache.c:
 	.text       start:0x800CD420 end:0x800CD458
 
-Runtime.PPCEABI.H.a/__mem.c:
+Runtime.PPCEABI.H/__mem.c:
 	.init       start:0x80003458 end:0x80003590
 
 TRK_MINNOW_DOLPHIN.a/mem_TRK.c:
