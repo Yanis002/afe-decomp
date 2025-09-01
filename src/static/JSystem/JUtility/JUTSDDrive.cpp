@@ -19,11 +19,11 @@ bool JUTSDDrive::init() {
     }
 
     sInitialized = true;
-    sAvailable[0] = false;
-    sAvailable[1] = false;
-    sMounted[0] = false;
-    sMounted[1] = false;
-    sCurrentDrive = 0;
+    sAvailable[DRIVE_SLOT_A] = false;
+    sAvailable[DRIVE_SLOT_B] = false;
+    sMounted[DRIVE_SLOT_A] = false;
+    sMounted[DRIVE_SLOT_B] = false;
+    sCurrentDrive = DRIVE_SLOT_A;
     return true;
 }
 
@@ -156,10 +156,67 @@ JUTSDCardFinder::~JUTSDCardFinder() {
 }
 
 bool JUTSDCardFinder::findNextFile() {
-    return false;
+    unsigned int uVar1;
+    unsigned int uVar2;
+    bool uVar3;
+
+    uVar2 = Readdir(this->mUnk_14, &this->mUnk_18);
+    uVar1 = uVar2 & 0xFFFF;
+    this->mUnk_6C = uVar2;
+
+    if (uVar1 == 0xA030) {
+        return false;
+    }
+
+    if (!IsAvailable(uVar1)) {
+        return false;
+    }
+
+    //! TODO: fake match?
+    this->mIsDir = (this->mUnk_5C >> 4) & 1;
+    return true;
 }
 
-void JUTSeekPathString(const char* param1, char** param2, char** param3, int* param4) {
+int JUTSeekPathString(const char* param1, char** param2, char** param3, int* param4) {
+    char* param;
+    int iVar2;
+
+    if (param1 == NULL || *param1 == '\0') {
+        return JUT_PATH_NONE;
+    }
+
+    param = (char*)param1;
+    *param3 = (char*)param1;
+
+    for (iVar2 = 0; *param != '\0'; param++, iVar2++) {
+        if (*param == '\\' || *param == '/') {
+            break;
+        }
+    }
+
+    if (iVar2 == 0) {
+        iVar2 = 1;
+        param++;
+    }
+
+    while (*param == '\\' || *param == '/') {
+        param++;
+    }
+
+    *param2 = *param != '\0' ? param : NULL;
+    *param4 = iVar2;
+
+    if ((*param3)[0] == '.') {
+        if (iVar2 == 1) {
+            return JUT_PATH_CUR_DIR;
+        }
+
+        if ((*param3)[1] == '.') {
+            return JUT_PATH_PARENT_DIR;
+        }
+    }
+
+    return JUT_PATH_SUCCESS;
 }
 
 void JUTCutTailPath(char* param1) {
@@ -188,7 +245,39 @@ void JUTCutTailPath(char* param1) {
     *pcVar2 = '\0';
 }
 
-void JUTAppendDirectory(char* param1, const char* param2) {
+char* JUTAppendDirectory(char* param1, const char* param2) {
+    char* sp8;
+    char* spC;
+    int sp10;
+    int result = JUTSeekPathString(param2, &sp8, &spC, &sp10);
+
+    if (result == JUT_PATH_NONE) {
+        return param1;
+    }
+
+    if (result != JUT_PATH_CUR_DIR) {
+        if (result == JUT_PATH_PARENT_DIR) {
+            JUTCutTailPath(param1);
+        } else {
+            if (*spC == '\\' || *spC == '/') {
+                *param1 = '\0';
+                strncat(param1, spC, sp10);
+
+                if (*param1 == '/') {
+                    *param1 = '\\';
+                }
+            } else {
+                if (param1[0] != '\\' || param1[1] != '\0') {
+                    strcat(param1, "\\");
+                }
+
+                strncat(param1, spC, sp10);
+            }
+        }
+    }
+
+    JUTAppendDirectory(param1, sp8);
+    return param1;
 }
 
 int JUTSDDrive::expandPath(int param1, const char* param2, char* param3) {

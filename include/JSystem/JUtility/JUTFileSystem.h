@@ -18,6 +18,7 @@ int FS_Delete(void* param1, const char* param2);
 int FS_Format(const char* param1, u16 param2, u16 param3);
 int FS_Mount(void** param1, u16 param2);
 int FS_Umount(void* param1);
+int FS_Readdir(void* param1, void* param2);
 
 static inline int Init(int param1, int param2, u16 param3) {
     int r = FS_Init(param1, param2, param3);
@@ -66,6 +67,11 @@ static inline int Mount(void** param1, u16 param2) {
 
 static inline int Umount(void* param1) {
     int r = FS_Umount(param1);
+    return r & 0xFFFF ? r : 0;
+}
+
+static inline int Readdir(void* param1, void* param2) {
+    int r = FS_Readdir(param1, param2);
     return r & 0xFFFF ? r : 0;
 }
 

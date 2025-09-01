@@ -21,8 +21,11 @@ class JUTSDCardFinder : public JKRFileFinder {
     // _00     = VTBL
     // _00-_14 = JKRFileFinder
     void* mUnk_14; // _14
-    char mUnk_18[0x6C - 0x18];
-    u16 mUnk_6C;
+    void* mUnk_18; // _18
+    char mUnk_1C[0x5C - 0x1C]; // _1C
+    u16 mUnk_5C;
+    char mUnk_5E[0x6C - 0x5E]; // _5E
+    u16 mUnk_6C; // _6C
 };
 
 struct JUTSDDrive {
@@ -89,8 +92,15 @@ struct JUTSDDrive {
     static bool sMounted[MAX_DRIVES];
 };
 
-void JUTSeekPathString(const char* param1, char** param2, char** param3, int* param4);
+enum JUTSeekPathResult {
+    JUT_PATH_NONE,
+    JUT_PATH_SUCCESS,
+    JUT_PATH_PARENT_DIR,
+    JUT_PATH_CUR_DIR,
+};
+
+int JUTSeekPathString(const char* param1, char** param2, char** param3, int* param4);
 void JUTCutTailPath(char* param1);
-void JUTAppendDirectory(char* param1, const char* param2);
+char* JUTAppendDirectory(char* param1, const char* param2);
 
 #endif

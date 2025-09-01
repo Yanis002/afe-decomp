@@ -298,7 +298,7 @@ config.libs = [
     JSystemLib(
         "JUtility",
         [
-            Object(NonMatching, "JSystem/JUtility/JUTSDDrive.cpp", extra_cflags=["-O4,p", "-RTTI on"]),
+            Object(Matching, "JSystem/JUtility/JUTSDDrive.cpp", extra_cflags=["-O4,p", "-RTTI on", "-inline auto"]),
             Object(NonMatching, "JSystem/JUtility/JUTSDFile.cpp"),
         ],
     ),
