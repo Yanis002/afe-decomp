@@ -982,19 +982,19 @@ JGadget.a/linklist.cpp:
 	.text       start:0x80074904 end:0x8007495C
 	.text       start:0x8007495C end:0x80074A44
 
-JUtility/JUTGraphFifo.cpp:
+JSystem/JUtility/JUTGraphFifo.cpp:
 	.text       start:0x80074A44 end:0x80074BE4
 	.data       start:0x80102C88 end:0x80102CA8
 	.sdata      start:0x80290FF8 end:0x80291000
 	.sbss       start:0x802918B8 end:0x802918C8
 
-JUtility/JUTFont.cpp:
+JSystem/JUtility/JUTFont.cpp:
 	.text       start:0x80074BE4 end:0x80074E00
 	.text       start:0x80074E00 end:0x80074ECC
 	.data       start:0x80102CA8 end:0x80102CF0
 	.sdata      start:0x80291000 end:0x80291010
 
-JUtility/JUTResFont.cpp:
+JSystem/JUtility/JUTResFont.cpp:
 	.text       start:0x80074ECC end:0x800760FC
 	.text       start:0x800760FC end:0x8007613C
 	.text       start:0x8007613C end:0x8007613C
@@ -1003,16 +1003,16 @@ JUtility/JUTResFont.cpp:
 	.sdata      start:0x80291010 end:0x80291028
 	.sdata2     start:0x80292468 end:0x80292480
 
-JUtility/JUTFontData_Ascfont_fix12.s: comment:0
+JSystem/JUtility/JUTFontData_Ascfont_fix12.s: comment:0
 	.rodata     start:0x800D20A0 end:0x800D6200
 
-JUtility/JUTDbPrint.cpp:
+JSystem/JUtility/JUTDbPrint.cpp:
 	.text       start:0x8007613C end:0x80076654
 	.text       start:0x80076654 end:0x80076654
 	.sbss       start:0x802918C8 end:0x802918D0
 	.sdata2     start:0x80292480 end:0x80292490
 
-JUtility/JUTGamePad.cpp:
+JSystem/JUtility/JUTGamePad.cpp:
 	.text       start:0x80076654 end:0x80077990
 	.text       start:0x80077990 end:0x80077B8C
 	.ctors      start:0x800D0434 end:0x800D0438
@@ -1022,7 +1022,7 @@ JUtility/JUTGamePad.cpp:
 	.sbss       start:0x802918D0 end:0x80291908
 	.sdata2     start:0x80292490 end:0x802924C0
 
-JUtility/JUTException.cpp:
+JSystem/JUtility/JUTException.cpp:
 	.text       start:0x80077B8C end:0x8007A664
 	.text       start:0x8007A664 end:0x8007A760
 	.ctors      start:0x800D0438 end:0x800D043C
@@ -1032,31 +1032,31 @@ JUtility/JUTException.cpp:
 	.sbss       start:0x80291908 end:0x80291928
 	.sdata2     start:0x802924C0 end:0x802924D0
 
-JUtility/JUTDirectPrint.cpp:
+JSystem/JUtility/JUTDirectPrint.cpp:
 	.text       start:0x8007A760 end:0x8007AEDC
 	.data       start:0x801033E8 end:0x801036B0
 	.sdata      start:0x802910A8 end:0x802910B0
 	.sbss       start:0x80291928 end:0x80291930
 	.sdata2     start:0x802924D0 end:0x80292528
 
-JUtility/JUTAssert.cpp:
+JSystem/JUtility/JUTAssert.cpp:
 	.text       start:0x8007AEDC end:0x8007B1F0
 	.bss        start:0x80234048 end:0x802340E8
 	.sdata      start:0x802910B0 end:0x802910C0
 	.sbss       start:0x80291930 end:0x80291938
 	.sdata2     start:0x80292528 end:0x80292540
 
-JUtility/JUTVideo.cpp:
+JSystem/JUtility/JUTVideo.cpp:
 	.text       start:0x8007B1F0 end:0x8007B750
 	.data       start:0x801036B0 end:0x801036C8
 	.sdata      start:0x802910C0 end:0x802910C8
 	.sbss       start:0x80291938 end:0x80291950
 
-JUtility/JUTXfb.cpp:
+JSystem/JUtility/JUTXfb.cpp:
 	.text       start:0x8007B750 end:0x8007B9F8
 	.sbss       start:0x80291950 end:0x80291958
 
-JUtility/JUTFader.cpp:
+JSystem/JUtility/JUTFader.cpp:
 	.text       start:0x8007B9F8 end:0x8007BC98
 	.text       start:0x8007BC98 end:0x8007BC98
 	.text       start:0x8007BC98 end:0x8007BC98
@@ -1064,14 +1064,14 @@ JUtility/JUTFader.cpp:
 	.sdata      start:0x802910C8 end:0x802910D0
 	.sdata2     start:0x80292540 end:0x80292548
 
-JUtility/JUTProcBar.cpp:
+JSystem/JUtility/JUTProcBar.cpp:
 	.text       start:0x8007BC98 end:0x8007DE34
 	.text       start:0x8007DE34 end:0x8007DE48
 	.sdata      start:0x802910D0 end:0x802910D8
 	.sbss       start:0x80291958 end:0x80291970
 	.sdata2     start:0x80292548 end:0x80292590
 
-JUtility/JUTConsole.cpp:
+JSystem/JUtility/JUTConsole.cpp:
 	.text       start:0x8007DE48 end:0x8007F324
 	.text       start:0x8007F324 end:0x8007F324
 	.data       start:0x801036F0 end:0x80103718
@@ -1079,15 +1079,15 @@ JUtility/JUTConsole.cpp:
 	.sbss       start:0x80291970 end:0x80291980
 	.sdata2     start:0x80292590 end:0x802925C0
 
-JUtility/JUTDirectFile.cpp:
+JSystem/JUtility/JUTDirectFile.cpp:
 	.text       start:0x8007F324 end:0x8007F6CC
 
-JUtility/JUTGba.cpp:
+JSystem/JUtility/JUTGba.cpp:
 	.text       start:0x8007F6CC end:0x800802FC
 	.data       start:0x80103718 end:0x80103788
 	.sbss       start:0x80291980 end:0x80291988
 
-JUtility/JUTSDDrive.cpp:
+JSystem/JUtility/JUTSDDrive.cpp:
 	.text       start:0x800802FC end:0x80080F3C
 	.text       start:0x80080F3C end:0x80080F3C
 	.data       start:0x80103788 end:0x801037C8
@@ -1095,115 +1095,115 @@ JUtility/JUTSDDrive.cpp:
 	.sdata      start:0x802910E8 end:0x80291108
 	.sbss       start:0x80291988 end:0x80291998
 
-JUtility/fs_vara.c:
+JSystem/JUtility/fs_vara.c:
 	.bss        start:0x80234168 end:0x8027FDF8
 
-JUtility/JUTSDFile.cpp:
+JSystem/JUtility/JUTSDFile.cpp:
 	.text       start:0x80080F3C end:0x80081344
 	.text       start:0x80081344 end:0x80081344
 	.text       start:0x80081344 end:0x8008140C
 	.data       start:0x801037C8 end:0x80103848
 	.sdata      start:0x80291108 end:0x80291130
 
-JUtility/JUTTiff.cpp:
+JSystem/JUtility/JUTTiff.cpp:
 	.text       start:0x8008140C end:0x80087240
 	.data       start:0x80103848 end:0x80103918
 	.sdata      start:0x80291130 end:0x80291160
 	.sdata2     start:0x802925C0 end:0x802925F8
 	.sbss2      start:0x80292AC0 end:0x80292AC2
 
-JUtility/fs_form.c:
+JSystem/JUtility/fs_form.c:
 	.text       start:0x80087240 end:0x80088D30
 	.rodata     start:0x800D6200 end:0x800D62B0
 	.data       start:0x80103918 end:0x80103948
 	.sbss       start:0x80291998 end:0x802919C8
 
-JUtility/fs_subd.c:
+JSystem/JUtility/fs_subd.c:
 	.text       start:0x80088D30 end:0x8008D640
 
-JUtility/fs_drv.c:
+JSystem/JUtility/fs_drv.c:
 	.text       start:0x8008D640 end:0x8008D7D0
 
-JUtility/time.c:
+JSystem/JUtility/time.c:
 	.text       start:0x8008D7D0 end:0x8008D854
 
-JUtility/fs_init.c:
+JSystem/JUtility/fs_init.c:
 	.text       start:0x8008D854 end:0x8008DE20
 	.rodata     start:0x800D62B0 end:0x800D62B8
 
-JUtility/fs_mount.c:
+JSystem/JUtility/fs_mount.c:
 	.text       start:0x8008DE20 end:0x8008F938
 	.data       start:0x80103948 end:0x80103970
 	.sdata      start:0x80291160 end:0x80291168
 
-JUtility/fs_umount.c:
+JSystem/JUtility/fs_umount.c:
 	.text       start:0x8008F938 end:0x8008FE10
 	.sdata      start:0x80291168 end:0x80291170
 
-JUtility/fs_sync.c:
+JSystem/JUtility/fs_sync.c:
 	.text       start:0x8008FE10 end:0x800900FC
 
-JUtility/fs_open.c:
+JSystem/JUtility/fs_open.c:
 	.text       start:0x800900FC end:0x800913E8
 
-JUtility/fs_read.c:
+JSystem/JUtility/fs_read.c:
 	.text       start:0x800913E8 end:0x80091E40
 
-JUtility/fs_close.c:
+JSystem/JUtility/fs_close.c:
 	.text       start:0x80091E40 end:0x80092104
 
-JUtility/fs_seek.c:
+JSystem/JUtility/fs_seek.c:
 	.text       start:0x80092104 end:0x8009243C
 
-JUtility/fs_dele.c:
+JSystem/JUtility/fs_dele.c:
 	.text       start:0x8009243C end:0x800926E0
 
-JUtility/fs_opdr.c:
+JSystem/JUtility/fs_opdr.c:
 	.text       start:0x800926E0 end:0x80092B68
 
-JUtility/fs_rddr.c:
+JSystem/JUtility/fs_rddr.c:
 	.text       start:0x80092B68 end:0x800932F8
 	.sdata      start:0x80291170 end:0x80291178
 
-JUtility/fs_cldr.c:
+JSystem/JUtility/fs_cldr.c:
 	.text       start:0x800932F8 end:0x80093440
 
-JUtility/fs_mkdr.c:
+JSystem/JUtility/fs_mkdr.c:
 	.text       start:0x80093440 end:0x80093A20
 	.data       start:0x80103970 end:0x80103988
 
-JUtility/fs_renm.c:
+JSystem/JUtility/fs_renm.c:
 	.text       start:0x80093A20 end:0x80093F3C
 	.sdata      start:0x80291178 end:0x80291180
 
-JUtility/fs_write.c:
+JSystem/JUtility/fs_write.c:
 	.text       start:0x80093F3C end:0x80094BE4
 
-JUtility/fs_chdr.c:
+JSystem/JUtility/fs_chdr.c:
 	.text       start:0x80094BE4 end:0x80094E90
 	.sdata      start:0x80291180 end:0x80291188
 
-JUtility/fs_getps.c:
+JSystem/JUtility/fs_getps.c:
 	.text       start:0x80094E90 end:0x80094F58
 
-JUtility/fs_cardrst.c:
+JSystem/JUtility/fs_cardrst.c:
 	.text       start:0x80094F58 end:0x80094F80
 
-JUtility/fs_drvsel.c:
+JSystem/JUtility/fs_drvsel.c:
 	.text       start:0x80094F80 end:0x8009531C
 
-JUtility/exidrv.c:
+JSystem/JUtility/exidrv.c:
 	.text       start:0x8009531C end:0x80098928
 	.bss        start:0x8027FDF8 end:0x8027FE78
 	.sbss       start:0x802919C8 end:0x802919D0
 
-JUtility/carddrv.c:
+JSystem/JUtility/carddrv.c:
 	.text       start:0x80098928 end:0x8009AEB8
 	.rodata     start:0x800D62B8 end:0x800D62F8
 	.bss        start:0x8027FE78 end:0x802800B0
 	.sbss       start:0x802919D0 end:0x80291A20
 
-JUtility/EXIBios.c:
+JSystem/JUtility/EXIBios.c:
 	.text       start:0x8009AEB8 end:0x8009C970
 	.bss        start:0x802800B0 end:0x80280180
 	.sbss       start:0x80291A20 end:0x80291A28
