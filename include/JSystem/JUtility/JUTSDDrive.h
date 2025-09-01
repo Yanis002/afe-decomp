@@ -7,13 +7,19 @@
 #define DRIVE_SLOT_A 0
 #define DRIVE_SLOT_B 1
 #define MAX_DRIVES 2
-
-#define MAX_PATH_LEN 126
+#define MAX_PATH_LEN 64
 
 #define IsAvailable(n) ((n & 0xFFFF) == 0)
 
+enum JUTSeekPathResult {
+    JUT_PATH_NONE,
+    JUT_PATH_SUCCESS,
+    JUT_PATH_PARENT_DIR,
+    JUT_PATH_CUR_DIR,
+};
+
 class JUTSDCardFinder : public JKRFileFinder {
-    JUTSDCardFinder(const char* param1);
+    JUTSDCardFinder(const char* path);
 
     virtual ~JUTSDCardFinder();
     virtual bool findNextFile(); // _0C
@@ -31,16 +37,16 @@ class JUTSDCardFinder : public JKRFileFinder {
 struct JUTSDDrive {
   public:
     static bool init();
-    static int setup(int param1);
-    static int mount(int param1);
-    static int unmount(int param1);
-    static int format(int param1, u16 param2, const char* param3);
-    static int terminate(int param1);
-    static int removeFile(int param1, const char* param2);
-    static int renameFile(int param1, const char* param2, const char* param3);
-    static int setCurrentDirectory(int param1, const char* param2);
-    static int makeDirectory(int param1, const char* param2);
-    static int expandPath(int param1, const char* param2, char* param3);
+    static int setup(int nDrive);
+    static int mount(int nDrive);
+    static int unmount(int nDrive);
+    static int format(int nDrive, u16 param2, const char* param3);
+    static int terminate(int nDrive);
+    static int removeFile(int nDrive, const char* fileName);
+    static int renameFile(int nDrive, const char* curFileName, const char* newFileName);
+    static int setCurrentDirectory(int nDrive, const char* path);
+    static int makeDirectory(int nDrive, const char* newDirName);
+    static int expandPath(int nDrive, const char* src, char* dest);
 
     static bool IsInitialized() {
         return sInitialized;
@@ -54,8 +60,8 @@ struct JUTSDDrive {
         return sDriveInfoPtr[nDrive];
     }
 
-    static char* GetCurrentPath() {
-        return sCurrentPath;
+    static char* GetCurrentPath(int nDrive) {
+        return sCurrentPath[nDrive];
     }
 
     static bool GetAvailable(int nDrive) {
@@ -67,40 +73,16 @@ struct JUTSDDrive {
     }
 
   private:
-    int mUnk_00;
-    int mUnk_04;
-    int mUnk_08;
-    int mUnk_0C;
-    int mUnk_10;
-    int mUnk_14;
-    int mUnk_18;
-    int mUnk_1C;
-    int mUnk_20;
-    int mUnk_24;
-    int mUnk_28;
-    int mUnk_2C;
-    int mUnk_30;
-    int mUnk_34;
-    int mUnk_38;
-    int mUnk_3C;
-
     static bool sInitialized;
     static int sCurrentDrive;
     static void* sDriveInfoPtr[MAX_DRIVES];
-    static char sCurrentPath[MAX_PATH_LEN];
+    static char sCurrentPath[MAX_DRIVES][MAX_PATH_LEN - 1];
     static bool sAvailable[MAX_DRIVES];
     static bool sMounted[MAX_DRIVES];
 };
 
-enum JUTSeekPathResult {
-    JUT_PATH_NONE,
-    JUT_PATH_SUCCESS,
-    JUT_PATH_PARENT_DIR,
-    JUT_PATH_CUR_DIR,
-};
-
-int JUTSeekPathString(const char* param1, char** param2, char** param3, int* param4);
-void JUTCutTailPath(char* param1);
-char* JUTAppendDirectory(char* param1, const char* param2);
+JUTSeekPathResult JUTSeekPathString(const char* param1, char** param2, char** param3, int* param4);
+void JUTCutTailPath(char* path);
+char* JUTAppendDirectory(char* dest, const char* src);
 
 #endif

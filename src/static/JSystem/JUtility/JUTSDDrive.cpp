@@ -8,10 +8,22 @@ extern "C" int SDTerm(u16);
 bool JUTSDDrive::sInitialized;
 int JUTSDDrive::sCurrentDrive;
 void* JUTSDDrive::sDriveInfoPtr[MAX_DRIVES];
-char JUTSDDrive::sCurrentPath[MAX_PATH_LEN];
-bool JUTSDDrive::sAvailable[MAX_DRIVES] = { false, false };
-bool JUTSDDrive::sMounted[MAX_DRIVES] = { false, false };
-u16 driveTable[MAX_DRIVES] = { DRIVE_SLOT_A, DRIVE_SLOT_B };
+char JUTSDDrive::sCurrentPath[MAX_DRIVES][MAX_PATH_LEN - 1];
+
+bool JUTSDDrive::sAvailable[MAX_DRIVES] = {
+    /* Memory Card Slot A */ false,
+    /* Memory Card Slot B */ false,
+};
+
+bool JUTSDDrive::sMounted[MAX_DRIVES] = {
+    /* Memory Card Slot A */ false,
+    /* Memory Card Slot B */ false,
+};
+
+u16 driveTable[MAX_DRIVES] = {
+    /* Memory Card Slot A */ DRIVE_SLOT_A,
+    /* Memory Card Slot B */ DRIVE_SLOT_B,
+};
 
 bool JUTSDDrive::init() {
     if (!IsAvailable(FS_CardIFReset())) {
@@ -27,16 +39,16 @@ bool JUTSDDrive::init() {
     return true;
 }
 
-int JUTSDDrive::setup(int param1) {
-    unsigned int uVar1 = FS_Init(0, 0, driveTable[param1]);
+int JUTSDDrive::setup(int nDrive) {
+    unsigned int uVar1 = FS_Init(0, 0, driveTable[nDrive]);
     unsigned int uVar2;
     unsigned int ret;
 
     if (!IsAvailable(uVar1)) {
-        sAvailable[param1] = false;
-        sMounted[param1] = false;
+        sAvailable[nDrive] = false;
+        sMounted[nDrive] = false;
 
-        uVar2 = JUTSDDrive::terminate(param1);
+        uVar2 = JUTSDDrive::terminate(nDrive);
         ret = uVar1;
 
         if (!IsAvailable(uVar2)) {
@@ -46,101 +58,101 @@ int JUTSDDrive::setup(int param1) {
         return ret;
     }
 
-    sAvailable[param1] = true;
-    sMounted[param1] = false;
-    strcpy(&sCurrentPath[param1 * 0x3F], "\\");
+    sAvailable[nDrive] = true;
+    sMounted[nDrive] = false;
+    strcpy(sCurrentPath[nDrive], "\\");
     return 0;
 }
 
-int JUTSDDrive::mount(int param1) {
-    unsigned int uVar1 = FS_Mount(&sDriveInfoPtr[param1], driveTable[param1]);
+int JUTSDDrive::mount(int nDrive) {
+    unsigned int uVar1 = FS_Mount(&sDriveInfoPtr[nDrive], driveTable[nDrive]);
 
     if (!IsAvailable(uVar1)) {
         return uVar1;
     }
 
-    sMounted[param1] = true;
+    sMounted[nDrive] = true;
     return 0;
 }
 
-int JUTSDDrive::unmount(int param1) {
-    unsigned int uVar1 = FS_Umount(sDriveInfoPtr[param1]);
+int JUTSDDrive::unmount(int nDrive) {
+    unsigned int uVar1 = FS_Umount(sDriveInfoPtr[nDrive]);
 
     if (!IsAvailable(uVar1)) {
         return uVar1;
     }
 
-    sMounted[param1] = false;
+    sMounted[nDrive] = false;
     return 0;
 }
 
-int JUTSDDrive::format(int param1, u16 param2, const char* param3) {
-    return Format(param3, param2, driveTable[param1]);
+int JUTSDDrive::format(int nDrive, u16 param2, const char* param3) {
+    return Format(param3, param2, driveTable[nDrive]);
 }
 
-int JUTSDDrive::terminate(int param1) {
-    unsigned int uVar1 = SDTerm(driveTable[param1]);
+int JUTSDDrive::terminate(int nDrive) {
+    unsigned int uVar1 = SDTerm(driveTable[nDrive]);
 
     if (!IsAvailable(uVar1)) {
         return uVar1;
     }
 
-    sAvailable[param1] = false;
-    sMounted[param1] = false;
+    sAvailable[nDrive] = false;
+    sMounted[nDrive] = false;
     return 0;
 }
 
-int JUTSDDrive::removeFile(int param1, const char* param2) {
-    char acStack_48[64];
+int JUTSDDrive::removeFile(int nDrive, const char* fileName) {
+    char filePath[MAX_PATH_LEN];
 
-    expandPath(param1, param2, acStack_48);
-    return Delete(sDriveInfoPtr[param1], acStack_48);
+    JUTSDDrive::expandPath(nDrive, fileName, filePath);
+    return Delete(sDriveInfoPtr[nDrive], filePath);
 }
 
-int JUTSDDrive::renameFile(int param1, const char* param2, const char* param3) {
-    char acStack_48[64];
-    char acStack_88[64];
+int JUTSDDrive::renameFile(int nDrive, const char* curFileName, const char* newFileName) {
+    char curFilePath[MAX_PATH_LEN];
+    char newFilePath[MAX_PATH_LEN];
 
-    expandPath(param1, param2, acStack_48);
-    expandPath(param1, param3, acStack_88);
-    return Rename(sDriveInfoPtr[param1], acStack_48, acStack_88);
+    JUTSDDrive::expandPath(nDrive, curFileName, curFilePath);
+    JUTSDDrive::expandPath(nDrive, newFileName, newFilePath);
+    return Rename(sDriveInfoPtr[nDrive], curFilePath, newFilePath);
 }
 
-int JUTSDDrive::setCurrentDirectory(int param1, const char* param2) {
-    char* __src;
+int JUTSDDrive::setCurrentDirectory(int nDrive, const char* path) {
+    char* curPath;
+    char newPath[MAX_PATH_LEN];
     unsigned int uVar1;
-    char acStack_58[64];
 
-    __src = &sCurrentPath[param1 * 0x3f];
-    strcpy(acStack_58, __src);
-    JUTAppendDirectory(__src, param2);
-    uVar1 = FS_Chdir(sDriveInfoPtr[param1], __src);
+    curPath = sCurrentPath[nDrive];
+    strcpy(newPath, curPath);
+    JUTAppendDirectory(curPath, path);
+
+    uVar1 = FS_Chdir(sDriveInfoPtr[nDrive], curPath);
 
     if (!IsAvailable(uVar1)) {
-        strcpy(__src, acStack_58);
+        strcpy(curPath, newPath);
         return uVar1;
     }
 
     return 0;
 }
 
-int JUTSDDrive::makeDirectory(int param1, const char* param2) {
-    char acStack_48[64];
+int JUTSDDrive::makeDirectory(int nDrive, const char* newDirName) {
+    char newDirPath[MAX_PATH_LEN];
 
-    JUTSDDrive::expandPath(param1, param2, acStack_48);
-    return Mkdir(sDriveInfoPtr[param1], acStack_48);
+    JUTSDDrive::expandPath(nDrive, newDirName, newDirPath);
+    return Mkdir(sDriveInfoPtr[nDrive], newDirPath);
 }
 
-JUTSDCardFinder::JUTSDCardFinder(const char* param1) {
+JUTSDCardFinder::JUTSDCardFinder(const char* path) {
     unsigned int uVar1;
-    char acStack_58[64];
+    char finalPath[MAX_PATH_LEN];
     int currentDrive = JUTSDDrive::GetCurrentDrive();
-    char* currentPath = JUTSDDrive::GetCurrentPath();
 
-    strcpy(acStack_58, &currentPath[currentDrive * 0x3F]);
-    JUTAppendDirectory(acStack_58, param1);
+    strcpy(finalPath, JUTSDDrive::GetCurrentPath(currentDrive));
+    JUTAppendDirectory(finalPath, path);
 
-    uVar1 = Opendir(JUTSDDrive::GetDriveInfoPtr(currentDrive), &mUnk_14, acStack_58);
+    uVar1 = Opendir(JUTSDDrive::GetDriveInfoPtr(currentDrive), &mUnk_14, finalPath);
     mUnk_6C = uVar1;
     mIsAvailable = IsAvailable(uVar1);
 }
@@ -177,7 +189,7 @@ bool JUTSDCardFinder::findNextFile() {
     return true;
 }
 
-int JUTSeekPathString(const char* param1, char** param2, char** param3, int* param4) {
+JUTSeekPathResult JUTSeekPathString(const char* param1, char** param2, char** param3, int* param4) {
     char* param;
     int iVar2;
 
@@ -219,72 +231,67 @@ int JUTSeekPathString(const char* param1, char** param2, char** param3, int* par
     return JUT_PATH_SUCCESS;
 }
 
-void JUTCutTailPath(char* param1) {
+void JUTCutTailPath(char* path) {
     char* pcVar1;
-    char* pcVar2;
+    char* pcVar2 = NULL;
 
-    pcVar2 = NULL;
-
-    for (pcVar1 = param1; *pcVar1 != '\0'; pcVar1 = pcVar1 + 1) {
+    for (pcVar1 = path; *pcVar1 != '\0'; pcVar1++) {
         if (*pcVar1 == '\\') {
             pcVar2 = pcVar1;
         }
     }
 
     if (pcVar2 == NULL) {
-        *param1 = '\\';
-        param1[1] = '\0';
+        path[0] = '\\';
+        path[1] = '\0';
         return;
     }
 
-    if (pcVar2 == param1) {
-        param1[1] = '\0';
+    if (pcVar2 == path) {
+        path[1] = '\0';
         return;
     }
 
     *pcVar2 = '\0';
 }
 
-char* JUTAppendDirectory(char* param1, const char* param2) {
+char* JUTAppendDirectory(char* dest, const char* src) {
     char* sp8;
     char* spC;
     int sp10;
-    int result = JUTSeekPathString(param2, &sp8, &spC, &sp10);
+    JUTSeekPathResult eResult = JUTSeekPathString(src, &sp8, &spC, &sp10);
 
-    if (result == JUT_PATH_NONE) {
-        return param1;
+    if (eResult == JUT_PATH_NONE) {
+        return dest;
     }
 
-    if (result != JUT_PATH_CUR_DIR) {
-        if (result == JUT_PATH_PARENT_DIR) {
-            JUTCutTailPath(param1);
+    if (eResult != JUT_PATH_CUR_DIR) {
+        if (eResult == JUT_PATH_PARENT_DIR) {
+            JUTCutTailPath(dest);
         } else {
             if (*spC == '\\' || *spC == '/') {
-                *param1 = '\0';
-                strncat(param1, spC, sp10);
+                *dest = '\0';
+                strncat(dest, spC, sp10);
 
-                if (*param1 == '/') {
-                    *param1 = '\\';
+                if (*dest == '/') {
+                    *dest = '\\';
                 }
             } else {
-                if (param1[0] != '\\' || param1[1] != '\0') {
-                    strcat(param1, "\\");
+                if (dest[0] != '\\' || dest[1] != '\0') {
+                    strcat(dest, "\\");
                 }
 
-                strncat(param1, spC, sp10);
+                strncat(dest, spC, sp10);
             }
         }
     }
 
-    JUTAppendDirectory(param1, sp8);
-    return param1;
+    JUTAppendDirectory(dest, sp8);
+    return dest;
 }
 
-int JUTSDDrive::expandPath(int param1, const char* param2, char* param3) {
-    char* currentPath = JUTSDDrive::GetCurrentPath();
-
-    //! TODO: is param1 a struct of size 0x3F?
-    strcpy(param3, &currentPath[param1 * 0x3F]);
-    JUTAppendDirectory(param3, param2);
+int JUTSDDrive::expandPath(int nDrive, const char* src, char* dest) {
+    strcpy(dest, JUTSDDrive::GetCurrentPath(nDrive));
+    JUTAppendDirectory(dest, src);
     return 0;
 }
