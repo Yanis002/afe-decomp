@@ -207,6 +207,7 @@ cflags_base = [
     # "-i src/static/dolphin",
     f"-i build/{config.version}/include",
     f"-DVERSION={version_num}",
+    "-sym on"
 ]
 
 # Debug flags
@@ -297,7 +298,7 @@ config.libs = [
     JSystemLib(
         "JUtility",
         [
-            Object(NonMatching, "JSystem/JUtility/JUTSDDrive.cpp"),
+            Object(NonMatching, "JSystem/JUtility/JUTSDDrive.cpp", extra_cflags=["-O4,p", "-RTTI on"]),
             Object(NonMatching, "JSystem/JUtility/JUTSDFile.cpp"),
         ],
     ),
