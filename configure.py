@@ -299,7 +299,7 @@ config.libs = [
         "JUtility",
         [
             Object(Matching, "JSystem/JUtility/JUTSDDrive.cpp", extra_cflags=["-O4,p", "-RTTI on", "-inline auto", "-enum int"]),
-            Object(NonMatching, "JSystem/JUtility/JUTSDFile.cpp"),
+            Object(NonMatching, "JSystem/JUtility/JUTSDFile.cpp", extra_cflags=["-O4,p", "-RTTI on", "-inline auto", "-enum int"]),
         ],
     ),
     {

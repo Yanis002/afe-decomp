@@ -7,6 +7,20 @@
 extern "C" {
 #endif
 
+typedef struct UnkStruct_ReadWrite {
+    /* 00 */ u16 unk_00;
+    /* 02 */ u16 unk_02;
+    /* 04 */ int unk_04;
+} UnkStruct_ReadWrite; // size = 0x08
+
+u16 FS_Open(void* param1, void** param2, char* param3, u16 param4);
+u16 FS_Read(void* param1, const void* data, s32 length, int param4, UnkStruct_ReadWrite* param5);
+u16 FS_Write(void* param1, const void* data, s32 length, int param4, UnkStruct_ReadWrite* param5);
+u16 FS_Close(void* param1);
+u16 FS_Seek(void* param1, int param2, int param3);
+u16 FS_Getpos(void* param1, u32* param2);
+
+//! TODO: return u16 instead of int
 int FS_CardIFReset();
 int FS_Init(int param1, int param2, u16 param3);
 int FS_Opendir(void* param1, void* param2, const char* param3);
