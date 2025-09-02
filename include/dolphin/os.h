@@ -18,6 +18,7 @@
 #include <dolphin/os/OSTime.h>
 #include <dolphin/os/OSAlarm.h>
 #include <dolphin/os/OSRtc.h>
+#include <dolphin/os/OSSemaphore.h>
 #include <dolphin/hw_regs.h>
 // #include "va_args.h"
 
