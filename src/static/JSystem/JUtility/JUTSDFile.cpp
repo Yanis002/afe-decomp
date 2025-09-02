@@ -31,9 +31,9 @@ bool JUTSDFile::open(int nDrive, const char* path, u16 param3) {
 }
 
 bool JUTSDFile::close() {
-    u16 ret = FS_Close(mUnk_20);
-    mUnk_26 = ret;
+    mUnk_26 = FS_Close(mUnk_20);
     mUnk_24 = false;
+    //! @bug: missing return
 }
 
 int JUTSDFile::readData(void* data, s32 length, s32 ofs) {

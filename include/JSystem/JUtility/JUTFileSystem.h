@@ -20,7 +20,7 @@ u16 FS_Close(void* param1);
 u16 FS_Seek(void* param1, int param2, int param3);
 u16 FS_Getpos(void* param1, u32* param2);
 
-//! TODO: return u16 instead of int
+//! TODO: return u16 instead of int?
 int FS_CardIFReset();
 int FS_Init(int param1, int param2, u16 param3);
 int FS_Opendir(void* param1, void* param2, const char* param3);
