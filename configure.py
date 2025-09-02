@@ -207,7 +207,6 @@ cflags_base = [
     # "-i src/static/dolphin",
     f"-i build/{config.version}/include",
     f"-DVERSION={version_num}",
-    "-sym on"
 ]
 
 # Debug flags

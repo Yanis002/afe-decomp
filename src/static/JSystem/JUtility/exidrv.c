@@ -16,16 +16,17 @@ extern int CARD_ExiFreq;
 extern u16 CARD_ExiChannel;
 extern int CARD_WP_Flag[2];
 
-void EXI_Null(s32 param1) {
-    s32 sp8;
-
-    sp8 = param1;
+void EXI_Null() {
+    // what the
+    register s32 a;
+    
+    asm {
+        stw r3, a;
+    }
 }
 
-void EXI_Unlock(s32 arg0) {
-    s32 sp8;
-
-    EXI_Null(sp8);
+void EXI_Unlock() {
+    EXI_Null();
     CARD_UnlockFlag[CARD_ExiChannel] = 1;
 }
 
@@ -37,10 +38,9 @@ s32 EXI_CheckTimeOut(u32 arg0, u32 arg1) {
     OSTick var_r31;
     OSTick temp_r3;
 
-    var_r31 = OSGetTick();
-
-    if (temp_r3 < arg0) {
-        var_r31 = temp_r3 + (-1 - arg0) + 1;
+    if ((temp_r3 = OSGetTick()) < arg0) {
+        var_r31 = 0xFFFFFFFF - arg0;
+        var_r31 += 1 + temp_r3;
     } else {
         var_r31 = temp_r3 - arg0;
     }

@@ -417,40 +417,35 @@ int EXISelectSD(long chan, unsigned long dev, unsigned long freq) {
 
     enabled = OSDisableInterrupts();
 
-    if ((exi->state & 4) ||
-        (
-            chan != 2 && 
-            (
-                dev == 0 && !(exi->state & 8)
-                && (var_r3 = __EXIProbe(chan), var_r3 != 0)
-                && exi->idTime == 0
-                || (var_r3 = EXIGetID(chan, 0, &id) ? 1 : 0, var_r3 == 0)
-                || !(exi->state & 0x10) 
-                || exi->dev != dev
-            )
-        )
-    ) {
-        OSRestoreInterrupts(enabled);
-        return 0;
+    if ((exi->state & 4) == 0) {
+        if (chan == 2) {
+            goto select;
+        }
+
+        if (dev == 0 && !(exi->state & 8)) {
+            if ((var_r3 = __EXIProbe(chan), var_r3 != 0) && exi->idTime == 0) {
+                if (EXIGetID(chan, 0, &id)) {
+                    var_r3 = TRUE;
+                } else {
+                    var_r3 = FALSE;
+                }
+            }
+    
+            if (!var_r3) {
+                goto exit;
+            }
+        }
+
+        if ((exi->state & 0x10) != 0 && (exi->dev == dev)) {
+            goto select;
+        }
     }
 
-    // if ((exi->state & 4) || (chan != 2 && dev == 0 && !(exi->state & 8))) {
-    //         var_r3 = __EXIProbe(chan);
+exit:
+    OSRestoreInterrupts(enabled);
+    return 0;
 
-    //         if (var_r3 != 0 && exi->idTime == 0) {
-    //             if (EXIGetID(chan, 0, &id)) {
-    //                 var_r3 = TRUE;
-    //             } else {
-    //                 var_r3 = FALSE;
-    //             }
-    //         }
-
-    //         if (var_r3 == 0 || !(exi->state & 0x10) || (exi->dev != dev)) {
-    //             OSRestoreInterrupts(enabled);
-    //             return 0;
-    //         }
-    // }
-
+select:
     exi->state |= 4;
     cpr = __EXIRegs[(chan * 5)];
     cpr &= 0x405;
