@@ -1,3 +1,4 @@
+#include "JSystem/JUtility/JUTSDCard.h"
 #include "os/OSTime.h"
 #include "types.h"
 #include "JSystem/JUtility/carddrv.h"
@@ -15,11 +16,6 @@ extern u16 EXI_MultiDataWrite(u8*, u16 sectorSize);
 extern void EXI_MultiWriteStop();
 extern u16 EXI_DataReadFinal(u8*, u16);
 extern void EXI_Null(s32 chan, OSContext* context);
-
-typedef struct UnkARG {
-    ARG arg;
-    u8 _00;
-} UnkARG;
 
 RES SD_RES[CARD_NUM_CHANS];
 CMD SD_CMD[CARD_NUM_CHANS];
@@ -47,11 +43,6 @@ int CARD_UnlockFlag[CARD_NUM_CHANS];
 int CARD_Size[CARD_NUM_CHANS];
 int func_CARD_In[CARD_NUM_CHANS];
 int func_CARD_Out[CARD_NUM_CHANS];
-
-u32 TEMP_BSS_ORDER_FIX_REMOVE_ME() {
-    CARD_Sem[0].count + CARD_Alarm[0].fire;
-    return SD_SDSTATUS[0].data[0] + SD_CID[0].data[0] + SD_CSD[0].data[0];
-}
 
 int CARD_IF_Reset() {
     int i;
@@ -339,6 +330,17 @@ u16 CARD_Command(u8 param1, int cmd) {
     return CARD_ErrStatus[CARD_ExiChannel];
 }
 
+static inline u16 CARD_Command2(UnkARG* param1) {
+    SD_CMD[CARD_ExiChannel].data[0] = param1->_00;
+    SD_CMD[CARD_ExiChannel].data[1] = param1->arg.data[0];
+    SD_CMD[CARD_ExiChannel].data[2] = param1->arg.data[1];
+    SD_CMD[CARD_ExiChannel].data[3] = param1->arg.data[2];
+    SD_CMD[CARD_ExiChannel].data[4] = param1->arg.data[3];
+
+    EXI_CmdWrite(SD_CMD[CARD_ExiChannel].data, 5);
+    return CARD_ErrStatus[CARD_ExiChannel];
+}
+
 static inline u16 CARD_GetResponse0() {
     return SD_RES[CARD_ExiChannel].data[0];
 }
@@ -487,15 +489,8 @@ u16 CARD_AppCommand() {
     SD_ARG[CARD_ExiChannel].data_u32 = 0;
     iVar2.arg = SD_ARG[CARD_ExiChannel];
     iVar2._00 = APP_CMD;
-    SD_CMD[CARD_ExiChannel].data[0] = iVar2._00;
-    SD_CMD[CARD_ExiChannel].data[1] = iVar2.arg.data[0];
-    SD_CMD[CARD_ExiChannel].data[2] = iVar2.arg.data[1];
-    SD_CMD[CARD_ExiChannel].data[3] = iVar2.arg.data[2];
-    SD_CMD[CARD_ExiChannel].data[4] = iVar2.arg.data[3];
 
-    EXI_CmdWrite(SD_CMD[CARD_ExiChannel].data, 5);
-
-    if (CARD_ErrStatus[CARD_ExiChannel] != 0) {
+    if (CARD_Command2(&iVar2)) {
         ret = CARD_ErrStatus[CARD_ExiChannel];
         return ret;
     }
@@ -533,13 +528,7 @@ u16 CARD_SendOpCond() {
         SD_ARG[CARD_ExiChannel].data_u32 = 0;
         iVar2.arg = SD_ARG[CARD_ExiChannel];
         iVar2._00 = CMD_69;
-        SD_CMD[CARD_ExiChannel].data[0] = iVar2._00;
-        SD_CMD[CARD_ExiChannel].data[1] = iVar2.arg.data[0];
-        SD_CMD[CARD_ExiChannel].data[2] = iVar2.arg.data[1];
-        SD_CMD[CARD_ExiChannel].data[3] = iVar2.arg.data[2];
-        SD_CMD[CARD_ExiChannel].data[4] = iVar2.arg.data[3];
-        EXI_CmdWrite(SD_CMD[CARD_ExiChannel].data, 5);
-        if (CARD_ErrStatus[CARD_ExiChannel] != 0) {
+        if (CARD_Command2(&iVar2)) {
             ret = CARD_ErrStatus[CARD_ExiChannel];
             return ret;
         }
@@ -557,13 +546,7 @@ u16 CARD_SendOpCond() {
     SD_ARG[CARD_ExiChannel].data_u32 = 0;
     iVar2.arg = SD_ARG[CARD_ExiChannel];
     iVar2._00 = SEND_CSD;
-    SD_CMD[CARD_ExiChannel].data[0] = iVar2._00;
-    SD_CMD[CARD_ExiChannel].data[1] = iVar2.arg.data[0];
-    SD_CMD[CARD_ExiChannel].data[2] = iVar2.arg.data[1];
-    SD_CMD[CARD_ExiChannel].data[3] = iVar2.arg.data[2];
-    SD_CMD[CARD_ExiChannel].data[4] = iVar2.arg.data[3];
-    EXI_CmdWrite(SD_CMD[CARD_ExiChannel].data, 5);
-    if (CARD_ErrStatus[CARD_ExiChannel] != 0) {
+    if (CARD_Command2(&iVar2)) {
         ret = CARD_ErrStatus[CARD_ExiChannel];
         return ret;
     }
@@ -585,20 +568,10 @@ u16 CARD_SendCSD() {
     int i;
 
     SD_ARG[CARD_ExiChannel].data_u32 = 0;
-
     iVar2.arg = SD_ARG[CARD_ExiChannel];
     iVar2._00 = SEND_CSD;
 
-    //! TODO: match with CARD_Command
-    SD_CMD[CARD_ExiChannel].data[0] = iVar2._00;
-    SD_CMD[CARD_ExiChannel].data[1] = iVar2.arg.data[0];
-    SD_CMD[CARD_ExiChannel].data[2] = iVar2.arg.data[1];
-    SD_CMD[CARD_ExiChannel].data[3] = iVar2.arg.data[2];
-    SD_CMD[CARD_ExiChannel].data[4] = iVar2.arg.data[3];
-
-    EXI_CmdWrite(SD_CMD[CARD_ExiChannel].data, 5);
-
-    if (CARD_ErrStatus[CARD_ExiChannel] != 0) {
+    if (CARD_Command2(&iVar2)) {
         ret = CARD_ErrStatus[CARD_ExiChannel];
         return ret;
     }
@@ -619,20 +592,10 @@ u16 CARD_SendCID() {
     int i;
 
     SD_ARG[CARD_ExiChannel].data_u32 = 0;
-
     iVar2.arg = SD_ARG[CARD_ExiChannel];
     iVar2._00 = SEND_CID;
 
-    //! TODO: match with CARD_Command
-    SD_CMD[CARD_ExiChannel].data[0] = iVar2._00;
-    SD_CMD[CARD_ExiChannel].data[1] = iVar2.arg.data[0];
-    SD_CMD[CARD_ExiChannel].data[2] = iVar2.arg.data[1];
-    SD_CMD[CARD_ExiChannel].data[3] = iVar2.arg.data[2];
-    SD_CMD[CARD_ExiChannel].data[4] = iVar2.arg.data[3];
-
-    EXI_CmdWrite(SD_CMD[CARD_ExiChannel].data, 5);
-
-    if (CARD_ErrStatus[CARD_ExiChannel] != 0) {
+    if (CARD_Command2(&iVar2)) {
         ret = CARD_ErrStatus[CARD_ExiChannel];
         return ret;
     }
@@ -652,20 +615,10 @@ u16 CARD_SetBlockLength(int param_1) {
     u16 ret;
 
     SD_ARG[CARD_ExiChannel].data_u32 = param_1;
-
     iVar2.arg = SD_ARG[CARD_ExiChannel];
     iVar2._00 = SET_BLOCKLEN;
 
-    //! TODO: match with CARD_Command
-    SD_CMD[CARD_ExiChannel].data[0] = iVar2._00;
-    SD_CMD[CARD_ExiChannel].data[1] = iVar2.arg.data[0];
-    SD_CMD[CARD_ExiChannel].data[2] = iVar2.arg.data[1];
-    SD_CMD[CARD_ExiChannel].data[3] = iVar2.arg.data[2];
-    SD_CMD[CARD_ExiChannel].data[4] = iVar2.arg.data[3];
-
-    EXI_CmdWrite(SD_CMD[CARD_ExiChannel].data, 5);
-
-    if (CARD_ErrStatus[CARD_ExiChannel] != 0) {
+    if (CARD_Command2(&iVar2)) {
         ret = CARD_ErrStatus[CARD_ExiChannel];
         return ret;
     }

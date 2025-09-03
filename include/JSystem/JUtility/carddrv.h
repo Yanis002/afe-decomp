@@ -12,6 +12,11 @@ typedef struct Test {
     u16 unk_00;
 } Test;
 
+typedef struct UnkARG {
+    ARG arg;
+    u8 _00;
+} UnkARG;
+
 typedef struct ReadWriteDParam5 {
     u16 unk_00;
     u16 unk_02;
