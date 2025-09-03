@@ -1,42 +1,19 @@
 #include "os/OSTime.h"
 #include "types.h"
+#include "JSystem/JUtility/JUTSDCard.h"
 
 #include <dolphin.h>
 
 extern void EXI_CmdWrite(u8* data, int n);
 extern void EXI_ResRead(u8* data, int n);
 extern void EXI_StopResRead(u8* data, int n);
-extern void EXI_DataRead(u8* data, int n);
+extern u16 EXI_DataRead(u8* data, u16 n);
 extern void EXI_CmdWrite0(u8* data, int n);
 extern void EXI_DataRes(u8* data);
 extern s32 EXI_CheckTimeOut(u32 arg0, u32 arg1);
-
-typedef struct CID {
-    u8 data[0x10];
-} CID;
-
-typedef struct CSD {
-    u8 data[0x12];
-} CSD;
-
-typedef struct SDSTATUS {
-    u8 data[0x40];
-} SDSTATUS;
-
-typedef struct CMD {
-    u8 data[0x05];
-} CMD;
-
-typedef struct RES {
-    u8 data[0x80];
-} RES;
-
-typedef struct ARG {
-    union {
-        u8 data[0x04];
-        u32 data_u32;
-    };
-} ARG;
+extern u16 EXI_MultiDataWrite(u8*, u16 sectorSize);
+extern void EXI_MultiWriteStop();
+extern u16 EXI_DataReadFinal(u8*, u16);
 
 typedef struct UnkARG {
     ARG arg;
@@ -56,7 +33,7 @@ const int CARD_TBL_CLOCK_DIV[] = {
     0xFF010505, 0xFF020505, 0xFF020505, 0xFF020505, 0xFF020505, 0xFF020505, 0xFF020505, 0xFF030505,
 };
 
-int CARD_WP_Flag[CARD_NUM_CHANS];
+int CARD_WP_Flag[CARD_NUM_CHANS]; // write protection flag
 u16 CARD_ExiChannel;
 u16 CARD_ExiFreq[CARD_NUM_CHANS];
 ARG SD_ARG[CARD_NUM_CHANS];
@@ -75,9 +52,12 @@ u32 TEMP_BSS_ORDER_FIX_REMOVE_ME() {
 
 void CARD_Reset();
 u16 CARD_Command(u8 param1, int cmd);
+u16 CARD_Response1(void);
 u16 CARD_Response2();
 u16 CARD_AppCommand();
+u16 CARD_DataResponse();
 u16 CARD_SetBlockLength(int param_1);
+u16 CARD_StopResponse();
 
 int CARD_IF_Reset() {
     int i;
@@ -169,10 +149,69 @@ int CARD_Getinfo(u8* param1) {
     return 0;
 }
 
-u16 CARD_ReadD() {
+typedef struct ReadWriteDParam5 {
+    u16 unk_00;
+    u16 unk_02;
+    u32 unk_04;
+} ReadWriteDParam5;
+
+u16 CARD_ReadD(SDSTATUS* param1, u32 param2, int param3, int param4, ReadWriteDParam5* param5) {
+    u8* pData;
+    int i;
+
+    CARD_ErrStatus[CARD_ExiChannel] = 0;
+    pData = param1->data;
+
+    if (!CARD_Command(READ_MULTIPLE_BLOCK, param3 * CARD_SectorSize[CARD_ExiChannel]) && !CARD_Response1()) {
+        for (i = 0; i < param2 - 1; i++) {
+            if (EXI_DataRead(pData, CARD_SectorSize[CARD_ExiChannel]) != 0) {
+                break;
+            }
+
+            pData += CARD_SectorSize[CARD_ExiChannel];
+        }
+
+        if (EXI_DataReadFinal(pData, CARD_SectorSize[CARD_ExiChannel]) == 0) {
+            CARD_StopResponse();
+        }
+    }
+
+    param5->unk_02 = CARD_ErrStatus[CARD_ExiChannel];
+    return CARD_ErrStatus[CARD_ExiChannel];
 }
 
-u16 CARD_WriteD() {
+u16 CARD_WriteD(SDSTATUS* param1, u32 param2, int param3, int param4, ReadWriteDParam5* param5) {
+    u8* pData;
+    int i;
+
+    CARD_ErrStatus[CARD_ExiChannel] = 0;
+
+    if (CARD_WP_Flag[CARD_ExiChannel] != 0) {
+        return LOCK_UNLOCK_FAILED;
+    }
+
+    pData = param1->data;
+
+    if (!CARD_Command(WRITE_MULTIPLE_BLOCK, param3 * CARD_SectorSize[CARD_ExiChannel]) && !CARD_Response1()) {
+        for (i = 0; i < param2; i++) {
+            if (EXI_MultiDataWrite(pData, CARD_SectorSize[CARD_ExiChannel]) || CARD_DataResponse()) {
+                break;
+            }
+
+            pData += CARD_SectorSize[CARD_ExiChannel];
+        }
+    }
+
+    EXI_MultiWriteStop();
+    SD_ARG[CARD_ExiChannel].data_u32 = 0;
+
+    if (CARD_ErrStatus[CARD_ExiChannel] == 0 && !CARD_Command(SEND_STATUS, SD_ARG[CARD_ExiChannel].data_u32)) {
+        CARD_Response2();
+    }
+
+    param5->unk_02 = CARD_ErrStatus[CARD_ExiChannel];
+    param5->unk_04 = i * CARD_SectorSize[CARD_ExiChannel];
+    return CARD_ErrStatus[CARD_ExiChannel];
 }
 
 u16 CARD_SD_Status() {
@@ -182,7 +221,7 @@ u16 CARD_SD_Status() {
 
     CARD_ErrStatus[CARD_ExiChannel] = 0;
     iVar3 = CARD_SectorSize[CARD_ExiChannel];
-    CARD_SectorSize[CARD_ExiChannel] = 0x40;
+    CARD_SectorSize[CARD_ExiChannel] = SECTOR_SIZE;
     CARD_SetBlockLength(CARD_SectorSize[CARD_ExiChannel]);
 
     if (CARD_ErrStatus[CARD_ExiChannel] != 0) {
@@ -203,7 +242,7 @@ u16 CARD_SD_Status() {
     SD_ARG[CARD_ExiChannel].data_u32 = 0;
 
     if (!CARD_Command(0x4D, SD_ARG[CARD_ExiChannel].data_u32) && !CARD_Response2()) {
-        EXI_DataRead(SD_SDSTATUS[CARD_ExiChannel].data, CARD_SectorSize[CARD_ExiChannel] & 0xFFFF);
+        EXI_DataRead(SD_SDSTATUS[CARD_ExiChannel].data, CARD_SectorSize[CARD_ExiChannel]);
     }
 
     CARD_SectorSize[CARD_ExiChannel] = iVar3;
