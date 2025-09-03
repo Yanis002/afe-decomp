@@ -3,6 +3,10 @@
 
 #include "types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SECTOR_SIZE 64
 
 enum SDCommands {
@@ -61,5 +65,9 @@ typedef struct ARG {
         u32 data_u32;
     };
 } ARG;
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif

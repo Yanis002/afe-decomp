@@ -1,6 +1,6 @@
 #include "os/OSTime.h"
 #include "types.h"
-#include "JSystem/JUtility/JUTSDCard.h"
+#include "JSystem/JUtility/carddrv.h"
 
 #include <dolphin.h>
 
@@ -14,6 +14,7 @@ extern s32 EXI_CheckTimeOut(u32 arg0, u32 arg1);
 extern u16 EXI_MultiDataWrite(u8*, u16 sectorSize);
 extern void EXI_MultiWriteStop();
 extern u16 EXI_DataReadFinal(u8*, u16);
+extern void EXI_Null(s32 chan, OSContext* context);
 
 typedef struct UnkARG {
     ARG arg;
@@ -28,9 +29,11 @@ CSD SD_CSD[CARD_NUM_CHANS];
 OSAlarm CARD_Alarm[CARD_NUM_CHANS];
 OSSemaphore CARD_Sem[CARD_NUM_CHANS];
 
-const int CARD_TBL_CLOCK_DIV[] = {
-    0xFFFFFFFF, 0xFF000305, 0xFF000305, 0xFF000305, 0xFF000305, 0xFF010405, 0xFF010405, 0xFF010405,
-    0xFF010505, 0xFF020505, 0xFF020505, 0xFF020505, 0xFF020505, 0xFF020505, 0xFF020505, 0xFF030505,
+const u8 CARD_TBL_CLOCK_DIV[] = {
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x03, 0x05, 0xFF, 0x00, 0x03, 0x05, 0xFF, 0x00, 0x03, 0x05,
+    0xFF, 0x00, 0x03, 0x05, 0xFF, 0x01, 0x04, 0x05, 0xFF, 0x01, 0x04, 0x05, 0xFF, 0x01, 0x04, 0x05,
+    0xFF, 0x01, 0x05, 0x05, 0xFF, 0x02, 0x05, 0x05, 0xFF, 0x02, 0x05, 0x05, 0xFF, 0x02, 0x05, 0x05,
+    0xFF, 0x02, 0x05, 0x05, 0xFF, 0x02, 0x05, 0x05, 0xFF, 0x02, 0x05, 0x05, 0xFF, 0x03, 0x05, 0x05,
 };
 
 int CARD_WP_Flag[CARD_NUM_CHANS]; // write protection flag
@@ -49,15 +52,6 @@ u32 TEMP_BSS_ORDER_FIX_REMOVE_ME() {
     CARD_Sem[0].count + CARD_Alarm[0].fire;
     return SD_SDSTATUS[0].data[0] + SD_CID[0].data[0] + SD_CSD[0].data[0];
 }
-
-void CARD_Reset();
-u16 CARD_Command(u8 param1, int cmd);
-u16 CARD_Response1(void);
-u16 CARD_Response2();
-u16 CARD_AppCommand();
-u16 CARD_DataResponse();
-u16 CARD_SetBlockLength(int param_1);
-u16 CARD_StopResponse();
 
 int CARD_IF_Reset() {
     int i;
@@ -108,12 +102,100 @@ u16 CARD_Select(u16 param_1) {
     return CARD_ErrStatus[CARD_ExiChannel];
 }
 
-void CARD_Reset() {
-}
+u16 CARD_Reset() {
+    u32 sp8;
+    u32 temp_r0;
+    u8 temp_r28;
+    u8 temp_r29;
+    u8 temp_r29_2;
 
-typedef struct Test {
-    u16 unk_00;
-} Test;
+    CARD_ExiFreq[CARD_ExiChannel] = 4;
+
+    if (EXIAttach(CARD_ExiChannel, &EXI_Null) == 0) {
+        CARD_ErrStatus[CARD_ExiChannel] |= 0x90;
+        return CARD_ErrStatus[CARD_ExiChannel];
+    }
+
+    CARD_Status[CARD_ExiChannel] = 0;
+    CARD_Size[CARD_ExiChannel] = 0;
+    CARD_WP_Flag[CARD_ExiChannel] = 0;
+    CARD_ErrStatus[CARD_ExiChannel] = 0;
+
+    CARD_SoftReset();
+
+    if (CARD_ErrStatus[CARD_ExiChannel] != 0) {
+        CARD_WP_Flag[CARD_ExiChannel] = 1;
+
+        CARD_SoftReset();
+        if (CARD_ErrStatus[CARD_ExiChannel] != 0) {
+            return CARD_ErrStatus[CARD_ExiChannel];
+        }
+    }
+
+    CARD_SendOpCond();
+    if (CARD_ErrStatus[CARD_ExiChannel] != 0) {
+        return CARD_ErrStatus[CARD_ExiChannel];
+    }
+
+    CARD_SendCSD();
+    if (CARD_ErrStatus[CARD_ExiChannel] != 0) {
+        return CARD_ErrStatus[CARD_ExiChannel];
+    }
+
+    CARD_SendCID();
+    if (CARD_ErrStatus[CARD_ExiChannel] != 0) {
+        return CARD_ErrStatus[CARD_ExiChannel];
+    }
+
+    CARD_SectorSize[CARD_ExiChannel] = SECTOR_SIZE * 8;
+    CARD_SetBlockLength(CARD_SectorSize[CARD_ExiChannel]);
+    if (CARD_ErrStatus[CARD_ExiChannel] != 0) {
+        return CARD_ErrStatus[CARD_ExiChannel];
+    }
+
+    temp_r29 = SD_CSD[CARD_ExiChannel].data[3];
+    temp_r29_2 = temp_r29 & 7;
+
+    if (temp_r29_2 > 3) {
+        CARD_ExiFreq[CARD_ExiChannel] = 0;
+    } else {
+        temp_r28 = CARD_TBL_CLOCK_DIV[((((temp_r29 >> 3U) & 0xF) * 4) & 0x3FC) + temp_r29_2];
+
+        if (temp_r28 == 0xFF) {
+            CARD_ExiFreq[CARD_ExiChannel] = 0;
+        } else {
+            CARD_ExiFreq[CARD_ExiChannel] = temp_r28;
+        }
+    }
+
+    CARD_SD_Status();
+    if (CARD_ErrStatus[CARD_ExiChannel] != 0) {
+        return CARD_ErrStatus[CARD_ExiChannel];
+    }
+
+    CARD_Size[CARD_ExiChannel] =
+        SD_SDSTATUS[CARD_ExiChannel].data[6] * 0x100 + SD_SDSTATUS[CARD_ExiChannel].data[7];
+    CARD_Size[CARD_ExiChannel] = SD_SDSTATUS[CARD_ExiChannel].data[4] * 0x100 + SD_SDSTATUS[CARD_ExiChannel].data[5];
+
+    CARD_Size[CARD_ExiChannel] *=
+        (4 << ((SD_CSD[CARD_ExiChannel].data[9] & 3) << 1 | (SD_CSD[CARD_ExiChannel].data[10] >> 7)));
+
+    if ((SD_CSD[CARD_ExiChannel].data[5] & 0xf) != 0) {
+        CARD_Size[CARD_ExiChannel] <<=
+            ((SD_CSD[CARD_ExiChannel].data[12] & 3) << 2 | (SD_CSD[CARD_ExiChannel].data[0xd] >> 6));
+    }
+
+    CARD_Size[CARD_ExiChannel] /= CARD_SectorSize[CARD_ExiChannel];
+
+    CARD_Size[CARD_ExiChannel] +=
+        (((SD_CSD[CARD_ExiChannel].data[8] >> 6) + SD_CSD[CARD_ExiChannel].data[7] * 4 +
+          (SD_CSD[CARD_ExiChannel].data[6] & 3) * 0x400 + 1) *
+             (4 << ((SD_CSD[CARD_ExiChannel].data[9] & 3) << 1 | (SD_CSD[CARD_ExiChannel].data[10] >> 7)))
+         << ((SD_CSD[CARD_ExiChannel].data[12] & 3) << 2 | (SD_CSD[CARD_ExiChannel].data[13] >> 6))) /
+        CARD_SectorSize[CARD_ExiChannel];
+
+    return CARD_ErrStatus[CARD_ExiChannel];
+}
 
 int CARD_Getstatus(Test* param1) {
     int iVar1;
@@ -148,12 +230,6 @@ int CARD_Getinfo(u8* param1) {
 
     return 0;
 }
-
-typedef struct ReadWriteDParam5 {
-    u16 unk_00;
-    u16 unk_02;
-    u32 unk_04;
-} ReadWriteDParam5;
 
 u16 CARD_ReadD(SDSTATUS* param1, u32 param2, int param3, int param4, ReadWriteDParam5* param5) {
     u8* pData;
@@ -263,7 +339,7 @@ u16 CARD_Command(u8 param1, int cmd) {
     return CARD_ErrStatus[CARD_ExiChannel];
 }
 
-u16 CARD_GetResponse0() {
+static inline u16 CARD_GetResponse0() {
     return SD_RES[CARD_ExiChannel].data[0];
 }
 
