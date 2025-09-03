@@ -19,8 +19,16 @@ enum SDCommands {
     /* 0x1B */ PROGRAM_CSD = 27,
     /* 0x2A */ LOCK_UNLOCK = 42,
 
+    /* 0x00 */ GO_IDLE_STATE = 0,
+    /* 0x09 */ SEND_CSD = 9,
+    /* 0x0A */ SEND_CID = 10,
+    /* 0x0C */ STOP_TRANSMISSION = 12,
     /* 0x0D */ SEND_STATUS = 13,
+    /* 0x10 */ SET_BLOCKLEN = 16,
+    /* 0x37 */ APP_CMD = 55,
     /* 0x38 */ GEN_CMD = 56,
+    /* 0x4D */ CMD_4D = 77,
+    /* 0x69 */ CMD_69 = 105,
 };
 
 enum SDErrorStatus {
