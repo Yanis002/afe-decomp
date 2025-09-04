@@ -4,6 +4,8 @@
 #include "types.h"
 #include "JSystem/JUtility/JUTSDCard.h"
 
+#include <dolphin.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -45,6 +47,25 @@ extern u16 CARD_SendCSD();
 extern u16 CARD_SendCID();
 extern u16 CARD_SetBlockLength(int param_1);
 extern u16 CARD_Term();
+
+extern RES SD_RES[CARD_NUM_CHANS];
+extern CMD SD_CMD[CARD_NUM_CHANS];
+extern CID SD_CID[CARD_NUM_CHANS];
+extern SDSTATUS SD_SDSTATUS[CARD_NUM_CHANS];
+extern CSD SD_CSD[CARD_NUM_CHANS];
+extern OSAlarm CARD_Alarm[CARD_NUM_CHANS];
+extern OSSemaphore CARD_Sem[CARD_NUM_CHANS];
+extern int CARD_WP_Flag[CARD_NUM_CHANS];
+extern u16 CARD_ExiChannel;
+extern u16 CARD_ExiFreq[CARD_NUM_CHANS];
+extern ARG SD_ARG[CARD_NUM_CHANS];
+extern int CARD_SectorSize[CARD_NUM_CHANS];
+extern volatile u16 CARD_ErrStatus[CARD_NUM_CHANS];
+extern int CARD_Status[CARD_NUM_CHANS];
+extern int CARD_UnlockFlag[CARD_NUM_CHANS];
+extern int CARD_Size[CARD_NUM_CHANS];
+extern int func_CARD_In[CARD_NUM_CHANS];
+extern int func_CARD_Out[CARD_NUM_CHANS];
 
 #ifdef __cplusplus
 };

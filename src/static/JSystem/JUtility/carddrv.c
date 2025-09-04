@@ -3,8 +3,6 @@
 #include "types.h"
 #include "JSystem/JUtility/carddrv.h"
 
-#include <dolphin.h>
-
 extern void EXI_CmdWrite(u8* data, int n);
 extern void EXI_ResRead(u8* data, int n);
 extern void EXI_StopResRead(u8* data, int n);
@@ -248,7 +246,7 @@ u16 CARD_ReadD(SDSTATUS* param1, u32 param2, int param3, int param4, ReadWriteDP
 }
 
 u16 CARD_WriteD(SDSTATUS* param1, u32 param2, int param3, int param4, ReadWriteDParam5* param5) {
-    u8* pData;
+    u8* volatile pData;
     int i;
 
     CARD_ErrStatus[CARD_ExiChannel] = 0;
@@ -281,9 +279,12 @@ u16 CARD_WriteD(SDSTATUS* param1, u32 param2, int param3, int param4, ReadWriteD
     return CARD_ErrStatus[CARD_ExiChannel];
 }
 
+static inline u16 CARD_Inline1(void) {
+    return CARD_ErrStatus[CARD_ExiChannel];
+}
+
 u16 CARD_SD_Status() {
     int iVar3;
-    u16 ret;
     int pad;
 
     CARD_ErrStatus[CARD_ExiChannel] = 0;
@@ -292,19 +293,16 @@ u16 CARD_SD_Status() {
     CARD_SetBlockLength(CARD_SectorSize[CARD_ExiChannel]);
 
     if (CARD_ErrStatus[CARD_ExiChannel] != 0) {
-        ret = CARD_ErrStatus[CARD_ExiChannel];
-        return ret;
+        return CARD_ErrStatus[CARD_ExiChannel];
     }
 
     CARD_AppCommand();
 
     if (CARD_ErrStatus[CARD_ExiChannel] != 0) {
-        ret = CARD_ErrStatus[CARD_ExiChannel];
-        return ret;
+        return CARD_ErrStatus[CARD_ExiChannel];
     }
 
-    // ?
-    CARD_ErrStatus[CARD_ExiChannel];
+    CARD_Inline1(); // not necessary but likely exists unless it's leftover from a debug assert
 
     SD_ARG[CARD_ExiChannel].data_u32 = 0;
 
@@ -315,8 +313,7 @@ u16 CARD_SD_Status() {
     CARD_SectorSize[CARD_ExiChannel] = iVar3;
     CARD_SetBlockLength(CARD_SectorSize[CARD_ExiChannel]);
 
-    ret = CARD_ErrStatus[CARD_ExiChannel];
-    return ret;
+    return CARD_ErrStatus[CARD_ExiChannel];
 }
 
 u16 CARD_Command(u8 param1, int cmd) {
