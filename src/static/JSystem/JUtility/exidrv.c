@@ -305,7 +305,7 @@ u16 EXI_DataRes(RES* arg0) {
     tick = OSGetTick();
     (void)tick;
     (void)tick;
-    // (void)tick2;
+
     while (sp8->data[0] == 0) {
         sp8->data[0] = EXI_ClrData[CARD_ExiChannel];
 
@@ -644,7 +644,6 @@ u16 EXI_CmdWrite0(RES* arg0, u16 arg1) {
     (void)pad0;
     (void)pad0;
     (void)pad0;
-
     (void)arg1;
     (void)arg1;
 
@@ -830,55 +829,119 @@ u16 EXI_MultiDataWrite(RES* arg0, u16 arg1) {
     return EXI_DeselectAndUnlock();
 }
 
-u16 EXI_MakeCRC16(u8* param_1, u16 param_2) {
-    u16 uVar1;
-    uint uVar2;
-    int iVar3;
-    uint local_20;
+u8 EXI_MakeCRC7(u8* arg0, u16 arg1) {
+    u16 i;
+    u16 CRC;
+    s32 j;
+    u8* pData;
+    u8 nMask;
 
-    local_20 = 0;
-    for (uVar1 = 0; uVar1 < param_2; uVar1++) {
-        uVar2 = 0x80;
-        iVar3 = 0;
+    nMask = 0;
+    CRC = 0;
+    i = 0;
+    pData = arg0;
+ 
+    while (i < arg1) {
+        nMask = 0x80;
 
-        while (iVar3 < 8) {
-            if ((uVar2 & ((uint)*param_1 ^ (int)(local_20 & 0xffff) >> (iVar3 + 8U & 0x3f) & 0xffU)) == 0) {
-                local_20 <<= 1;
+        for (j = 0; j < 8; j++) {
+            CRC <<= 1;
 
-                if (((local_20 ^ 0x20) & 0x20) != 0) {
-                    local_20 |= 0x20;
+            if ((*pData ^ ((CRC & 0xFF) >> j)) & nMask) {
+                CRC |= 1;
+
+                if ((CRC ^ 8) & 8) {
+                    CRC |= 8;
                 } else {
-                    local_20 &= ~0x20;
-                }
-
-                if (((local_20 ^ 0x1000) & 0x1000) != 0) {
-                    local_20 |= 0x1000;
-                } else {
-                    local_20 &= ~0x1000;
+                    CRC &= 0xFFF7;
                 }
             } else {
-                local_20 <<= 1;
-                if ((local_20 & 0x20) != 0) {
-                    local_20 |= 0x20;
-                } else {
-                    local_20 &= ~0x20;
-                }
+                CRC &= 0xFFFE;
 
-                if ((local_20 & 0x1000) != 0) {
-                    local_20 |= 0x1000;
+                if (CRC & 8) {
+                    CRC |= 8;
                 } else {
-                    local_20 &= ~0x1000;
+                    CRC &= 0xFFF7;
                 }
             }
 
-            uVar2 = (int)uVar2 >> 1;
-            iVar3++;
+            nMask >>= 1;
         }
 
-        local_20 &= 0xffff;
-        param_1++;
+        CRC &= 0xFF;
+        pData++;
+        i++;
     }
-    return local_20;
+
+    return CRC <<= 1;
+}
+
+u16 EXI_MakeCRC16(u8* arg0, u16 arg1) {
+    u16 i;
+    s32 j;
+    u8* pData;
+    u8 nMask;
+    u8 nData;
+    u8 pad0;
+    volatile s32 CRC;
+    volatile u16 spC;
+
+    spC = arg1;
+    nMask = 0;
+    CRC = 0;
+    i = 0;
+    pData = arg0;
+
+    (void)pad0;
+    (void)pad0;
+    (void)pad0;
+
+    while (i < spC) {
+        nData = *pData;
+        nMask = 0x80;
+
+        for (j = 0; j < 8; j++) {
+            if ((nData ^ (((CRC & 0xFFFF) >> (j + 8)) & 0xFF)) & nMask) {
+                CRC <<= 1;
+                CRC |= 1;
+
+                if ((CRC ^ 0x20) & 0x20) {
+                    CRC |= 0x20;
+                } else {
+                    CRC &= ~0x20;
+                }
+
+                if ((CRC ^ 0x1000) & 0x1000) {
+                    CRC |= 0x1000;
+                } else {
+                    CRC &= ~0x1000;
+                }
+            } else {
+                CRC <<= 1;
+                CRC &= ~1;
+
+                if (CRC & 0x20) {
+                    CRC |= 0x20;
+                } else {
+                    CRC &= ~0x20;
+                }
+
+                if (CRC & 0x1000) {
+                    CRC |= 0x1000;
+                } else {
+                    CRC &= ~0x1000;
+                }
+            }
+
+            nMask >>= 1;
+        }
+
+        CRC &= 0xFFFF;
+        pData = pData + 1;
+        i++;
+    }
+
+    return CRC;
 }
 
 s32 EXI_CheckTimeOut(u32 arg0, u32 arg1) {
